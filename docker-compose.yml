@@ -1,0 +1,50 @@
+version: '3'
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: ava_postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: ava
+      POSTGRES_PASSWORD: ava
+    volumes:
+      - postgres_data:/var/lib/postresql/data
+
+  redis:
+    image: redis:7.0.7
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - 'redis_data:/data'
+
+  elastic:
+    image: elasticsearch:8.4.2
+    restart: always
+    ports:
+      - 9200:9200
+      - 9300:9300
+
+    environment:
+      - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+
+  kibana:
+    image: kibana:8.4.2
+    ports:
+      - 5601:5601
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elastic:9200
+    depends_on:
+      - elastic
