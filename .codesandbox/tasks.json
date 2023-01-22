@@ -9,7 +9,7 @@
       "command": "docker-compose up",
       "runAtStart": true,
       "preview": {
-        "port": 4000,
+        "port": 5601,
         "prLink": "direct"
       }
     }
